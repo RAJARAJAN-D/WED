@@ -1,0 +1,163 @@
+import { useReducedMotion } from "../../hooks/useReducedMotion";
+import { useEffect, useState } from "react";
+import { motion } from "framer-motion";
+import { weddingData } from "../../data/weddingData";
+import { WeddingCountdown } from "../interactive/WeddingCountdown";
+import { ScratchCanvas } from "../interactive/ScratchCanvas";
+import { Ornament, Botanical, LINK_ARROW } from "../ui/Ornament";
+
+type RevealState = "covered" | "scratching" | "revealing" | "revealed";
+
+export function ScratchRevealScene({
+  revealed,
+  onReveal,
+}: {
+  revealed: boolean;
+  onReveal: () => void;
+}) {
+  const reduced = useReducedMotion();
+  const [scratching, setScratching] = useState(false);
+  const [revealState, setRevealState] = useState<RevealState>("covered");
+  useEffect(() => {
+    if (revealed) setRevealState("revealing");
+    else if (scratching) setRevealState("scratching");
+  }, [revealed, scratching]);
+  const [day, month] = weddingData.wedding.dateLabel.split(" ");
+  return (
+    <section
+      id="scratch-date"
+      className={`scene scratch-scene paper ${revealed ? "date-discovered" : ""} ${scratching ? "is-scratching" : ""}`}
+      data-reveal-state={revealState}
+      aria-labelledby="scratch-title"
+    >
+      <FloatingPetals count={7} />
+      {/* Held where the scroll parallax placed it at the top of the page, where the card is seen. */}
+      <div
+        className="scratch-environment"
+        style={{ transform: reduced ? undefined : "translateY(-10px)" }}
+      >
+        <img src="/images/opening-bg.webp" srcSet="/images/opening-bg-640.webp 640w, /images/opening-bg.webp 1024w" sizes="(max-width: 760px) 100vw, 760px" width={1024} height={1536} decoding="async" alt="" fetchPriority="high" />
+      </div>
+      <Botanical className="scratch-foreground" />
+      <p className="eyebrow">A secret, just for you</p>
+      <div className="scratch-card-drift">
+        <div className="date-stationery">
+          <div className="stationery-rule" />
+          <Botanical className="date-floral left" />
+          <Botanical className="date-floral right" />
+          <Ornament />
+          <p className="date-couple">
+            {weddingData.couple.groom}
+            <em>&</em>
+            {weddingData.couple.bride}
+          </p>
+          <h2 id="scratch-title" className="scratch-instruction" tabIndex={-1}>
+            {revealed
+              ? "The day we begin forever"
+              : reduced
+                ? "A beautiful date awaits"
+                : "Scratch to reveal our wedding date"}
+          </h2>
+          <div className="foil-window">
+            <div className="date-beneath" aria-hidden={!revealed}>
+              <p className="eyebrow">Save the date</p>
+              <strong className="revealed-day">{day}</strong>
+              <span className="revealed-month">{month}</span>
+              {weddingData.wedding.year && (
+                <span className="revealed-year">
+                  {weddingData.wedding.year}
+                </span>
+              )}
+              <p className="date-signature">
+                {weddingData.couple.groom} & {weddingData.couple.bride}
+              </p>
+              <Ornament />
+            </div>
+            <ScratchCanvas
+              revealed={revealed}
+              onReveal={onReveal}
+              onScratchingChange={setScratching}
+            />
+            {revealed && (
+              <div className="reveal-petals" aria-hidden="true">
+                {Array.from({ length: 7 }, (_, i) => (
+                  <i
+                    key={i}
+                    style={{
+                      left: `${14 + i * 12}%`,
+                      animationDelay: `${i * 0.15}s`,
+                    }}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+          {revealed && (
+            <motion.span
+              aria-hidden="true"
+              className="reveal-sequence-clock"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ duration: reduced ? 0 : 3.1 }}
+              onAnimationComplete={() => setRevealState("revealed")}
+            />
+          )}
+          <div
+            className="invitation-countdown-space"
+          >
+            {revealed && (
+              <motion.div
+                id="countdown"
+                className="invitation-countdown"
+                initial={{ opacity: 0, y: reduced ? 0 : 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: reduced ? 0 : 0.9, delay: reduced ? 0 : 0.2 }}
+                aria-labelledby="countdown-title"
+              >
+                <motion.div className="countdown-divider" initial={{ scaleX: 0 }} animate={{ scaleX: 1 }} transition={{ duration: reduced ? 0 : 0.8 }} />
+                <h3 id="countdown-title">Until we say <em>I do</em></h3>
+                <WeddingCountdown />
+                <motion.a href="#journey" className="scroll-hint" initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: reduced ? 0 : 1.2, duration: 0.6 }}>
+                  Continue the journey <span>↓</span>
+                </motion.a>
+              </motion.div>
+            )}
+          </div>
+          <div className="reveal-action">
+            {revealed ? (
+              <>
+                <p className="sr-only" role="status">
+                  Our wedding date is {weddingData.wedding.dateLabel}
+                  {weddingData.wedding.year
+                    ? ` ${weddingData.wedding.year}`
+                    : ""}
+                  .
+                </p>
+              </>
+            ) : (
+              <>
+                <p className="scratch-help">
+                  {reduced
+                    ? "A little touch. A beautiful beginning."
+                    : "Gently brush away the golden veil."}
+                </p>
+                <button
+                  className="stationery-action tap-reveal"
+                  onClick={onReveal}
+                  aria-label="Tap to reveal our wedding date"
+                >
+                  {reduced ? "Tap to reveal" : "Or, reveal with a tap"}{" "}
+                  <span>{LINK_ARROW}</span>
+                </button>
+              </>
+            )}
+          </div>
+        </div>
+      </div>
+      <p className="script scratch-footnote">
+        Some moments are worth uncovering.
+      </p>
+    </section>
+  );
+}
+import { FloatingPetals } from "../ui/FloatingPetals";
