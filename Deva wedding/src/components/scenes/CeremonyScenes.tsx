@@ -213,7 +213,7 @@ function Ceremony({ event }: { event: WeddingEvent }) {
           <div className="turmeric-bowl" aria-hidden="true" />
         </>
       )}
-      <div ref={copy} className="ceremony-copy"   style = {event.id === "vivah" ? {transform:"translateY(450px)", color:"#ffff", textShadow:"0 2px 6px rgba(96, 8, 9, 0.85)"} : undefined } data-reveal="fade" data-shown={shown || undefined}>
+      <div ref={copy} className="ceremony-copy"   style = {event.id === "vivah" ? {transform:"translateY(350px)", color:"#ffff", textShadow:"0 2px 6px rgba(96, 8, 9, 0.85)"} : undefined } data-reveal="fade" data-shown={shown || undefined}>
         
         <p className="eyebrow">{event.chapter}</p>
         <Ornament />
