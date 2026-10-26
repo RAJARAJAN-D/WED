@@ -3698,3 +3698,34 @@ p {
 :root[data-motion="reduced"] [data-reveal],
 :root[data-motion="reduced"] [data-reveal] *,
 :root[data-motion="reduced"] .journey-drawn-path { transition: none !important; }
+
+
+@media (max-width: 599px) {
+  section.scene.ceremony.mata {
+    /* 100vw × (mata-portraits.webp height ÷ width). Example: 1200×1000 image → 83vw */
+    --portrait-h: 85vw;
+    height: auto;              /* let it grow past 100svh */
+    min-height: 100svh;
+  }
+
+  /* Portraits get their own strip at the bottom */
+  section.scene.ceremony.mata::before {
+    inset: auto 0 0 0;
+    height: var(--portrait-h);
+    background-size: 100% auto;
+    background-position: center bottom;
+    -webkit-mask-image: linear-gradient(transparent, #000 60px);
+    mask-image: linear-gradient(transparent, #000 60px);
+  }
+
+  /* Text stops above that strip */
+  section.scene.ceremony.mata .ceremony-copy {
+    padding-bottom: calc(var(--portrait-h) + 24px);
+  }
+
+  /* Fade the top artwork out just before the portraits start (px-based, not %) */
+  section.scene.ceremony.mata .scene-art {
+    -webkit-mask-image: linear-gradient(#000 calc(100% - var(--portrait-h) - 160px), transparent calc(100% - var(--portrait-h)));
+    mask-image: linear-gradient(#000 calc(100% - var(--portrait-h) - 160px), transparent calc(100% - var(--portrait-h)));
+  }
+}
